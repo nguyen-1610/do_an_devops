@@ -1,0 +1,40 @@
+name: deploy
+
+# Chạy khi push code lên nhánh main
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    # Sử dụng máy ảo Ubuntu mới nhất
+    runs-on: ubuntu-latest
+    steps:
+      # Lấy code từ GitHub về máy ảo (uses: sử dụng Action có sẵn)
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Đăng nhập vào Docker Hub bằng Secrets
+      - name: Login DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Build và đẩy image Backend lên Docker Hub
+      - name: Buid & Push Backend
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend # Thư mục chứa code và Dockerfile
+          push: true # Tự động đẩy (push) lên Docker Hub sau khi build
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/todo-backend:latest # Tên và nhãn (tag) của image
+
+      # Build và đẩy image Frontend lên Docker Hub
+      - name: Buid & Push Frontend
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/todo-frontend:latest
+
+
