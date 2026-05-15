@@ -1,0 +1,67 @@
+version: "3.8"
+
+services:
+  # =====================
+  # MongoDB Database
+  # =====================
+  mongodb:
+    image: mongo:6
+    container_name: todo-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      # Lưu data MongoDB vào volume, không mất khi restart
+      - mongodb_data:/data/db
+    networks:
+      - todo-network
+
+  # =====================
+  # Backend (ExpressJS)
+  # =====================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: todo-backend
+    restart: always # Luôn khởi động lại khi bị lỗi hoặc restart docker
+    ports:
+      - "8001:8001"
+    environment:
+      # MongoDB URI trỏ vào service "mongodb" ở trên
+      - MONGO_URI=mongodb://mongodb:27017/todo-app
+      - PORT=8001
+      # Thêm các biến môi trường khác từ .env của bạn vào đây
+      # - JWT_SECRET=your_secret
+      # - EMAIL_USER=your_email
+    depends_on:
+      # Đảm bảo mongodb phải chạy trước nhưng không đảm bảo mongodb đã sẵn sàng
+      - mongodb
+    networks:
+      - todo-network
+
+  # =====================
+  # Frontend (ReactJS)
+  # =====================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: todo-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - todo-network
+
+# =====================
+# Volumes & Networks
+# =====================
+volumes:
+  mongodb_data:
+
+networks:
+  todo-network:
+    driver: bridge
