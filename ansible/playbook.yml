@@ -1,0 +1,40 @@
+- name: Triển khai Todo App
+  hosts: servers
+  become: true
+
+  tasks:
+    - name: Cập nhật apt
+      apt:
+        update_cache: yes   # yes hay no?
+
+    - name: Cài đặt Git
+      apt:
+        name: git           # tên package
+        state: present      # present hay absent?
+
+    - name: Cài đặt curl
+      apt:
+        name: curl
+        state: present
+
+    - name: Cài đặt Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Cài đặt Docker Compose
+      shell: |
+        curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
+    
+    - name: Clone source từ github
+      git:
+        repo: "https://github.com/nguyen-1610/do_an_devops.git"     # repository cần clone
+        dest: /root/app                                           # nơi chứa code sau khi clone
+        version: main                                             # branch cần clone
+
+    - name: Chạy docker-compose
+      shell: cd /root/app && docker-compose up -d 
+      # ở github action chạy đã build image và push lên docker hub 
+      # nên trên VPS Docker thấy image trong docker-compose.yml -> pull image từ docker hub 
+      # nên sẽ chạy được luôn không cần build local. Lý do không có tag --build

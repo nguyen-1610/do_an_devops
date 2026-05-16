@@ -1,0 +1,14 @@
+# File cấu hình Prometheus: Định nghĩa các mục tiêu (targets) cần thu thập dữ liệu (metrics)
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 1m
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']    # tên container node-exporter
+
+  - job_name: 'mongodb'
+    static_configs:
+      - targets: ['mongodb-exporter:9216']    # tên container mongodb-exporter

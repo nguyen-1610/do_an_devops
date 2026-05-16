@@ -1,4 +1,3 @@
-version: "3.8"
 
 services:
   # =====================
@@ -20,16 +19,14 @@ services:
   # Backend (ExpressJS)
   # =====================
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: znic/todo-backend:latest
     container_name: todo-backend
     restart: always # Luôn khởi động lại khi bị lỗi hoặc restart docker
     ports:
       - "8001:8001"
     environment:
       # MongoDB URI trỏ vào service "mongodb" ở trên
-      - MONGO_URI=mongodb://mongodb:27017/todo-app
+      - MONGO_URI=mongodb://todo-mongodb:27017/todo-app
       - PORT=8001
       # Thêm các biến môi trường khác từ .env của bạn vào đây
       # - JWT_SECRET=your_secret
@@ -44,9 +41,7 @@ services:
   # Frontend (ReactJS)
   # =====================
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: znic/todo-frontend:latest
     container_name: todo-frontend
     restart: always
     ports:
@@ -56,6 +51,62 @@ services:
     networks:
       - todo-network
 
+  # =====================
+  # Prometheus: Người đi thu thập số liệu từ Exporters
+  # =====================
+  prometheus:
+    image: prom/prometheus
+    container_name: todo-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      # Đưa file cấu hình prometheus.yml từ máy thật vào đúng vị trí 
+      # mà Prometheus cần đọc bên trong container
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - node-exporter
+      - mongodb-exporter
+    networks:
+      - todo-network
+
+  # =====================
+  # Node Exporter: Thu thập số liệu của máy chủ  và chờ Prometheus tới lấy
+  # =====================
+  node-exporter:
+    # container riêng, chạy liên tục đọc metrics CPU/RAM từ máy chủ
+    image: prom/node-exporter
+    container_name: todo-node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - todo-network
+
+  # =====================
+  # MongoDB Exporter: Thu thập số liệu của MongoDB và chờ Prometheus tới lấy
+  # =====================
+  mongodb-exporter:
+    image: percona/mongodb_exporter:0.40
+    container_name: todo-mongodb-exporter
+    ports:
+      - "9216:9216"
+    environment:
+      - MONGODB_URI=mongodb://todo-mongodb:27017/todo-app
+    networks:
+      - todo-network
+
+  # =====================
+  # Grafana: Trực quan hóa số liệu từ Prometheus
+  # =====================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: todo-grafana
+    restart: always
+    ports:
+      - "3001:3000" # dùng 3001 vì 3000 đã dùng cho frontend
+    networks:
+      - todo-network
+    depends_on:
+      - prometheus
 # =====================
 # Volumes & Networks
 # =====================
