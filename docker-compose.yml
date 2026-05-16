@@ -107,11 +107,25 @@ services:
       - todo-network
     depends_on:
       - prometheus
+
+# Jenkins CI/CD server
+  jenkins: # jenkins cần port 8080
+    image: jenkins/jenkins:lts
+    container_name: todo-jenkins
+    restart: always
+    ports:
+      - "8080:8080" # Cổng cho giao diện web Jenkins
+      - "50000:50000" # Cổng cho giao tiếp giữa Jenkins controller và agent
+    volumes:
+      - ./jenkins_data:/var/jenkins_home # Lưu trữ cấu hình và dữ liệu Jenkins
+    networks:
+      - todo-network
 # =====================
 # Volumes & Networks
 # =====================
 volumes:
   mongodb_data:
+  jenkins_data:
 
 networks:
   todo-network:
