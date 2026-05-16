@@ -9,4 +9,4 @@ This is a simple MERN stack Todo application deployed with Docker, Ansible, and 
 - Ansible Configuration Management
 - Terraform Infrastructure as Code
 
-Lỗi hoài
+Lỗi hoài vậy ta
