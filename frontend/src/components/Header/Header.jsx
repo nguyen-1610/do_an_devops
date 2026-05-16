@@ -28,7 +28,7 @@ function Header() {
                         ) : (
                             <ul className='flex justify-end gap-3 w-3/4 pr-6'>
                                 <li>
-                                    <NavLink to="/login">Login</NavLink>
+                                    <NavLink to="/login">Đăng Nhập</NavLink>
                                 </li>
                                 <li>
                                     <NavLink to="/register">Register</NavLink>
