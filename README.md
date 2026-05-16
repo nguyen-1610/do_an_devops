@@ -9,4 +9,4 @@ This is a simple MERN stack Todo application deployed with Docker, Ansible, and 
 - Ansible Configuration Management
 - Terraform Infrastructure as Code
 
-_Last updated to test Jenkins CI/CD pipeline._
+Testing
