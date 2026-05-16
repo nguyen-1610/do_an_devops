@@ -1,10 +1,5 @@
 pipeline {
     agent any
-
-    environment {
-        DEPLOY_PATH = '/root/app'
-    }
-
     stages {
         stage('Deploy') {
             steps {
@@ -14,18 +9,19 @@ pipeline {
                     usernameVariable: 'SSH_USER'
                 )]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no -i \${SSH_KEY} \${SSH_USER}@207.148.71.96 '
-                            cd \${DEPLOY_PATH} &&
-                            docker pull znic/todo-backend:latest &&
-                            docker pull znic/todo-frontend:latest &&
-                            docker-compose up -d --remove-orphans
-                        '
+                        ssh -o StrictHostKeyChecking=no \
+                            -i \${SSH_KEY} \
+                            \${SSH_USER}@207.148.71.96 '
+                                cd /root/app &&
+                                docker pull znic/todo-backend:latest &&
+                                docker pull znic/todo-frontend:latest &&
+                                docker-compose up -d --remove-orphans
+                            '
                     """
                 }
             }
         }
     }
-
     post {
         success { echo '✅ Deploy thành công!' }
         failure { echo '❌ Deploy thất bại!' }
