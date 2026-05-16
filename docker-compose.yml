@@ -113,6 +113,7 @@ services:
     image: jenkins/jenkins:lts
     container_name: todo-jenkins
     restart: always
+    user: root
     ports:
       - "8080:8080" # Cổng cho giao diện web Jenkins
       - "50000:50000" # Cổng cho giao tiếp giữa Jenkins controller và agent
